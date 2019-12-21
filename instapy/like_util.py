@@ -797,6 +797,31 @@ def like_image(browser, username, blacklist, logger, logfolder, total_liked_img)
     return False, "invalid element"
 
 
+def like_image_custom(browser, logger):
+    """Likes the browser opened image"""
+
+    like_xpath = read_xpath(like_image.__name__, "like")
+    unlike_xpath = read_xpath(like_image.__name__, "unlike")
+
+    # find first for like element
+    like_elem = browser.find_elements_by_xpath(like_xpath)
+
+    if len(like_elem) == 1:
+        # sleep real quick right before clicking the element
+        sleep(2)
+        like_elem = browser.find_elements_by_xpath(like_xpath)
+        click_element(browser, like_elem[0])
+        # check now we have unlike instead of like
+        liked_elem = browser.find_elements_by_xpath(unlike_xpath)
+
+        if len(liked_elem) == 1:
+            logger.info("--> Image Liked!")
+            return True, "success"
+
+    logger.info("--> Invalid Like Element!")
+    return False, "invalid element"
+
+
 def verify_liked_image(browser, logger):
     """Check for a ban on likes using the last liked image"""
 

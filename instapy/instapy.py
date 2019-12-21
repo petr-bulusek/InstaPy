@@ -29,7 +29,7 @@ from .like_util import get_links_for_tag
 from .like_util import get_links_from_feed
 from .like_util import get_tags
 from .like_util import get_links_for_location
-from .like_util import like_image
+from .like_util import like_image, like_image_custom
 from .like_util import get_links_for_username
 from .like_util import like_comment
 from .story_util import watch_story
@@ -55,8 +55,8 @@ from .util import get_bounding_box
 from .unfollow_util import get_given_user_followers
 from .unfollow_util import get_given_user_following
 from .unfollow_util import unfollow
-from .unfollow_util import unfollow_user
-from .unfollow_util import follow_user
+from .unfollow_util import unfollow_user, unfollow_user_custom
+from .unfollow_util import follow_user, follow_user_custom
 from .unfollow_util import follow_restriction
 from .unfollow_util import dump_follow_restriction
 from .unfollow_util import set_automated_followed_pool
@@ -1264,6 +1264,80 @@ class InstaPy:
         self.not_valid_users += not_valid_users
 
         return followed_all
+
+    def interact_with_user_custom(
+        self,
+        username: str,
+        amount: int = 1,
+        randomize: bool = False,
+        media: str = None,
+    ):
+        """Likes some amounts of images for username"""
+
+        message = "Starting to interact with user.."
+        highlight_print(self.username, message, "feature", "info", self.logger)
+
+        total_liked_img = 0
+
+        self.quotient_breach = False
+
+        self.logger.info("--> {}".format(username.encode("utf-8")))
+
+        try:
+            links = get_links_for_username(
+                self.browser,
+                self.username,
+                username,
+                amount,
+                self.logger,
+                self.logfolder,
+                randomize,
+                media,
+            )
+        except NoSuchElementException:
+            self.logger.error("Element not found, skipping this username")
+            links = []
+
+        if links is False:
+            links = []
+
+
+        self.logger.info("Number links got: {}".format(len(links)))
+
+        for i, link in enumerate(links[:amount]):
+            web_address_navigator(self.browser, link)
+            # like_comment(self.browser)
+            no_seconds = random.randint(3, 6)
+            self.logger.info('sleeping random time, {} seconds'.format(no_seconds))
+            sleep(no_seconds)
+            like_image_custom(self.browser, self.logger)
+            no_seconds = random.randint(3, 6)
+            self.logger.info('sleeping random time, {} seconds'.format(no_seconds))
+            sleep(no_seconds)
+
+        return self
+
+    def follow_by_list_custom(self, followlist: list):
+        users_count = len(followlist)
+        for i, user_name in enumerate(followlist):
+            # interact with user
+            # like something
+            self.interact_with_user_custom(user_name)
+            no_seconds = random.randint(5, 10)
+            self.logger.info('sleeping random time, {} seconds'.format(no_seconds))
+            sleep(no_seconds)
+            self.logger.info('user {}/{}'.format(i, users_count))
+            follow_user_custom(self.browser, user_name, self.logger, self.logfolder)
+            no_seconds = random.randint(1200, 1400)  # we want to do cca 33 users in cca 12 hours = delay 1300 seconds
+            self.logger.info('sleeping random time, {} seconds'.format(no_seconds))
+            sleep(no_seconds)
+
+    def unfollow_by_list_custom(self, unfollowlist: list):
+        for user_name in unfollowlist:
+            unfollow_user_custom(self.browser, user_name, self.logger, self.logfolder)
+            no_seconds = random.randint(30, 45)
+            self.logger.info('sleeping random time, {} seconds'.format(no_seconds))
+            sleep(no_seconds)
 
     def set_relationship_bounds(
         self,

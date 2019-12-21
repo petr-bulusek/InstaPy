@@ -677,6 +677,64 @@ def follow_user(browser, track, login, user_name, button, blacklist, logger, log
     return True, "success"
 
 
+def follow_user_custom(browser, user_name, logger, logfolder):
+    """ Follow a user either from the profile page or post page or dialog
+    box """
+
+    logger.info('going to user profile')
+    user_link = "https://www.instagram.com/{}/".format(user_name)
+    web_address_navigator(browser, user_link)
+
+    no_seconds = random.randint(3, 7)
+    logger.info('sleeping random time, {} seconds'.format(no_seconds))
+    sleep(no_seconds)
+
+    following_status, follow_button = get_following_status(
+        browser, 'profile', 'shredmania_game', user_name, None, logger, logfolder
+    )
+    if following_status in ["Follow", "Follow Back"]:
+        click_visibly(browser, follow_button)  # click to follow
+        logger.info("--> Clicked follow on username: '{}'!".format(user_name.encode("utf-8")))
+    else:
+        logger.warning('Could not click on follow')
+        return False, 'Failed'
+
+    no_seconds = random.randint(4, 6)
+    logger.info('sleeping random time, {} seconds'.format(no_seconds))
+    sleep(no_seconds)
+
+    return True, "success"
+
+
+def unfollow_user_custom(browser, user_name, logger, logfolder):
+    """ Follow a user either from the profile page or post page or dialog
+    box """
+
+    logger.info('going to user profile')
+    user_link = "https://www.instagram.com/{}/".format(user_name)
+    web_address_navigator(browser, user_link)
+
+    no_seconds = random.randint(3, 7)
+    logger.info('sleeping random time, {} seconds'.format(no_seconds))
+    sleep(no_seconds)
+
+    following_status, follow_button = get_following_status(
+        browser, 'profile', 'shredmania_game', user_name, None, logger, logfolder
+    )
+    if following_status in ["Following", "Requested"]:
+        click_visibly(browser, follow_button)  # click to unfollow
+        logger.info("--> Clicked unfollow on username: '{}'!".format(user_name.encode("utf-8")))
+    else:
+        logger.warning('Could not click on unfollow')
+        return False, 'Failed'
+
+    no_seconds = random.randint(4, 6)
+    logger.info('sleeping random time, {} seconds'.format(no_seconds))
+    sleep(no_seconds)
+
+    return True, "success"
+
+
 def scroll_to_bottom_of_followers_list(browser):
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight)")
     return
